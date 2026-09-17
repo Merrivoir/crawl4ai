@@ -36,6 +36,22 @@ LABEL maintainer="unclecode"
 LABEL description="🔥🕷️ Crawl4AI: Open-source LLM Friendly Web Crawler & scraper"
 LABEL version="1.0"
 
+# Harden apt against a flaky network path to the Debian mirrors. On some hosts
+# (observed on Docker Desktop/Windows) a fraction of the parallel HTTP
+# connections to deb.debian.org are refused or time out, which makes the large
+# apt runs (`playwright install --with-deps` pulls ~1000 packages) fail with
+# "Unable to fetch some archives" / exit code 100. Retry aggressively, prefer
+# HTTPS, and allow long timeouts so repeated attempts can succeed.
+RUN printf '%s\n' \
+    'Acquire::Retries "10";' \
+    'Acquire::http::Timeout "60";' \
+    'Acquire::https::Timeout "60";' \
+    'Acquire::ForceIPv4 "true";' \
+    > /etc/apt/apt.conf.d/80-network-hardening \
+    && for f in /etc/apt/sources.list /etc/apt/sources.list.d/debian.sources; do \
+        if [ -f "$f" ]; then sed -i 's|http://deb.debian.org|https://deb.debian.org|g' "$f"; fi; \
+    done
+
 # Install curl and gnupg first (needed to add Redis repo)
 RUN apt-get update && apt-get install -y --no-install-recommends curl gnupg \
     && rm -rf /var/lib/apt/lists/*

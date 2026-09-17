@@ -4,6 +4,16 @@ docs/* linguist-documentation
 docs/examples/* linguist-documentation
 docs/md_v2/* linguist-documentation
 
+# These files are executed or parsed inside the Linux container. A Windows
+# checkout with core.autocrlf=true would otherwise materialise them with CRLF
+# endings, which breaks `entrypoint.sh` (`set -euo pipefail\r`) and leaves the
+# container restarting forever. Pin them to LF regardless of host settings.
+*.sh text eol=lf
+Dockerfile text eol=lf
+Dockerfile.* text eol=lf
+deploy/docker/*.conf text eol=lf
+deploy/docker/requirements.txt text eol=lf
+
 # Explicitly mark Python as the main language
 *.py linguist-detectable=true
 *.py linguist-language=Python
