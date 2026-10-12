@@ -1,0 +1,50 @@
+name: crawl4ai
+services:
+  crawl4ai:
+    image: crawl4ai-local:d1a237c
+    build:
+      context: ./source
+      dockerfile: Dockerfile
+      args:
+        INSTALL_TYPE: default
+        ENABLE_GPU: "false"
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:11235:11235"
+    env_file:
+      - .secrets.env
+    environment:
+      GUNICORN_BIND: "0.0.0.0:11235"
+    user: appuser
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    shm_size: 512mb
+    tmpfs:
+      - /tmp:size=1g
+      - /var/lib/redis:uid=999,gid=999,mode=0700,size=256m
+      - /var/lib/crawl4ai/outputs:uid=999,gid=999,mode=0700,size=256m
+      - /home/appuser/.crawl4ai:uid=999,gid=999,mode=0700,size=256m
+      - /home/appuser/.cache/url_seeder:uid=999,gid=999,mode=0700,size=64m
+      - /home/appuser/.gunicorn:uid=999,gid=999,mode=0700,size=16m
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 3G
+          pids: 512
+        reservations:
+          memory: 1G
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    healthcheck:
+      test: [CMD, curl, -fsS, "http://127.0.0.1:11235/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

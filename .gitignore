@@ -311,4 +311,10 @@ out/
 
 # entrypoint.sh is a required deployment artifact (Dockerfile COPYs it)
 !deploy/docker/entrypoint.sh
+!deploy/vps/cleanup-finland.sh
+!deploy/vps/prepare.sh
+deploy/vps/.secrets.env
 kolesa.kz.html
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+graft/
