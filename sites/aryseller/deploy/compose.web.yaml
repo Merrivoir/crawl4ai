@@ -1,0 +1,12 @@
+# Use together with the existing mail compose.yaml.
+# Keep both networks declared so the Caddy-to-Crawl4AI link survives recreation.
+services:
+  caddy:
+    networks:
+      default: {}
+      crawler: {}
+
+networks:
+  crawler:
+    external: true
+    name: crawl4ai_default
