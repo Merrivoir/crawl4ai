@@ -319,9 +319,6 @@ kolesa.kz.html
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 graft/
 
-# VPS website publication script
-!sites/aryseller/deploy/publish.sh
-
-# Buildless corporate website: dist is its authored source, not build output.
-!sites/aryseller/dist/
-!sites/aryseller/dist/**
+# Service interface: dist is authored source, not generated build output.
+!sites/crawl4ai/dist/
+!sites/crawl4ai/dist/**

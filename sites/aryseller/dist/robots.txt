@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /services/crawl4ai/api/
-Sitemap: https://aryseller.com/sitemap.xml

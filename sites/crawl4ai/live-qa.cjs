@@ -1,11 +1,12 @@
-const {chromium} = require('C:/Users/User/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const {chromium} = require(process.env.PLAYWRIGHT_MODULE_PATH || 'playwright');
 const {execFileSync} = require('node:child_process');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 let browser;
+let token;
 (async () => {
   // Keep the server's credential in process memory; never print or write it.
-  const token = execFileSync('ssh', ['-p','231','-i','C:/Users/User/.ssh/vps_fin','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','traen@2.26.66.48',"sed -n 's/^CRAWL4AI_API_TOKEN=//p' /home/traen/crawl4ai/.secrets.env"], {encoding:'utf8',timeout:20000}).trim();
+  token = execFileSync('ssh', ['-p','231','-i','C:/Users/User/.ssh/vps_fin','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','traen@2.26.66.48',"sed -n 's/^CRAWL4AI_API_TOKEN=//p' /home/traen/crawl4ai/.secrets.env"], {encoding:'utf8',timeout:20000}).trim();
   assert.equal(token.length,64);
   browser = await chromium.launch({headless:true,channel:'msedge'});
   const context = await browser.newContext({viewport:{width:1440,height:1000},permissions:['clipboard-read','clipboard-write']});
@@ -39,4 +40,4 @@ let browser;
   assert.deepEqual(errors,[]);
   await browser.close();
   console.log('LIVE_BROWSER_OK: HTTPS company → service → authenticated real crawl → copy → download → clear credential; no page errors.');
-})().catch(error => { console.error(error.message); process.exitCode = 1; }).finally(async () => { if (browser) await browser.close(); });
+})().catch(error => { console.error(token ? error.message.replaceAll(token, '[REDACTED]') : error.message); process.exitCode = 1; }).finally(async () => { if (browser) await browser.close(); });

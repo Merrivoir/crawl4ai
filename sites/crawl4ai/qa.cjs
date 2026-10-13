@@ -1,18 +1,14 @@
-const {chromium} = require('C:/Users/User/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const {chromium} = require(process.env.PLAYWRIGHT_MODULE_PATH || 'playwright');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const output = process.argv[2];
-const base = process.argv[3] || 'http://127.0.0.1:5179';
+const base = process.argv[3] || 'http://127.0.0.1:5180';
 (async () => {
   const browser = await chromium.launch({headless:true,channel:'msedge'});
   const page = await browser.newPage({viewport:{width:1440,height:1000}});
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
-  await page.goto(base + '/', {waitUntil:'networkidle'});
-  await page.screenshot({path:path.join(output,'aryseller-desktop.png'),fullPage:true});
-  assert.equal(await page.locator('a[href="/services/crawl4ai/"]').count(), 1);
-  assert.equal(await page.locator('a[href="mailto:info@aryseller.com"]').count(), 3);
-  await page.locator('a[href="/services/crawl4ai/"]').click();
+  await page.goto(base + '/services/crawl4ai/', {waitUntil:'networkidle'});
   await page.waitForURL('**/services/crawl4ai/');
   await page.screenshot({path:path.join(output,'crawl4ai-desktop.png'),fullPage:true});
   await page.locator('#page-url').fill('https://example.com');
@@ -41,7 +37,7 @@ const base = process.argv[3] || 'http://127.0.0.1:5179';
   assert.equal(await page.locator('#api-token').inputValue(),'');
   for (const width of [320,390,768]) {
     await page.setViewportSize({width,height:844});
-    for (const route of ['/', '/services/crawl4ai/']) {
+    for (const route of ['/services/crawl4ai/']) {
       await page.goto(base + route,{waitUntil:'networkidle'});
       const layout = await page.evaluate(() => ({scroll:document.documentElement.scrollWidth,viewport:window.innerWidth}));
       assert.ok(layout.scroll <= layout.viewport, JSON.stringify({width,route,...layout}));
